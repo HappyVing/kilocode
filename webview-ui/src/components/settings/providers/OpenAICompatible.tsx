@@ -22,6 +22,7 @@ import { inputEventTransform, noTransform } from "../transforms"
 import { ModelPicker } from "../ModelPicker"
 import { R1FormatSetting } from "../R1FormatSetting"
 import { ThinkingBudget } from "../ThinkingBudget"
+import { RESTRICTED_MODELS } from "../constants"
 
 type OpenAICompatibleProps = {
 	apiConfiguration: ProviderSettings
@@ -41,7 +42,7 @@ export const OpenAICompatible = ({
 	const [azureApiVersionSelected, setAzureApiVersionSelected] = useState(!!apiConfiguration?.azureApiVersion)
 	const [openAiLegacyFormatSelected, setOpenAiLegacyFormatSelected] = useState(!!apiConfiguration?.openAiLegacyFormat)
 
-	const [openAiModels, setOpenAiModels] = useState<Record<string, ModelInfo> | null>(null)
+	const [openAiModels, setOpenAiModels] = useState<Record<string, ModelInfo>>(RESTRICTED_MODELS)
 
 	const [customHeaders, setCustomHeaders] = useState<[string, string][]>(() => {
 		const headers = apiConfiguration?.openAiHeaders || {}
@@ -108,13 +109,14 @@ export const OpenAICompatible = ({
 	const onMessage = useCallback((event: MessageEvent) => {
 		const message: ExtensionMessage = event.data
 
-		switch (message.type) {
-			case "openAiModels": {
-				const updatedModels = message.openAiModels ?? []
-				setOpenAiModels(Object.fromEntries(updatedModels.map((item) => [item, openAiModelInfoSaneDefaults])))
-				break
-			}
-		}
+		// 不再动态获取模型，使用受限的模型列表
+		// switch (message.type) {
+		// 	case "openAiModels": {
+		// 		const updatedModels = message.openAiModels ?? []
+		// 		setOpenAiModels(Object.fromEntries(updatedModels.map((item) => [item, openAiModelInfoSaneDefaults])))
+		// 		break
+		// 	}
+		// }
 	}, [])
 
 	useEvent("message", onMessage)
@@ -148,10 +150,10 @@ export const OpenAICompatible = ({
 			<ModelPicker
 				apiConfiguration={apiConfiguration}
 				setApiConfigurationField={setApiConfigurationField}
-				defaultModelId="gpt-4o"
+				defaultModelId="deepseek-chat"
 				models={openAiModels}
 				modelIdKey="openAiModelId"
-				serviceName="OpenAI"
+				serviceName="OpenAI Compatible"
 				serviceUrl="https://platform.openai.com"
 				organizationAllowList={organizationAllowList}
 				errorMessage={modelValidationError}

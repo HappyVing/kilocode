@@ -72,49 +72,7 @@ import {
 	CollapsibleContent,
 } from "@src/components/ui"
 
-import {
-	Anthropic,
-	Bedrock,
-	Cerebras,
-	Chutes,
-	ClaudeCode,
-	DeepSeek,
-	Doubao,
-	Gemini,
-	Glama,
-	Groq,
-	HuggingFace,
-	IOIntelligence,
-	LMStudio,
-	LiteLLM,
-	Mistral,
-	Moonshot,
-	Ollama,
-	OpenAI,
-	OpenAICompatible,
-	OpenRouter,
-	QwenCode,
-	Requesty,
-	Roo,
-	SambaNova,
-	Unbound,
-	Vertex,
-	VSCodeLM,
-	XAI,
-	// kilocode_change start
-	GeminiCli,
-	VirtualQuotaFallbackProvider,
-	Synthetic,
-	OvhCloudAiEndpoints,
-	Inception,
-	// kilocode_change end
-	ZAi,
-	Fireworks,
-	Featherless,
-	VercelAiGateway,
-	DeepInfra,
-	MiniMax,
-} from "./providers"
+import { OpenAICompatible } from "./providers"
 
 import { MODELS_BY_PROVIDER, PROVIDERS } from "./constants"
 import { inputEventTransform, noTransform } from "./transforms"
@@ -315,29 +273,16 @@ const ApiOptions = ({
 	}, [apiConfiguration, routerModels, organizationAllowList, setErrorMessage])
 
 	const selectedProviderModels = useMemo(() => {
-		const models = MODELS_BY_PROVIDER[selectedProvider]
-		if (!models) return []
-
-		const filteredModels = filterModels(models, selectedProvider, organizationAllowList)
-
-		// Include the currently selected model even if deprecated (so users can see what they have selected)
-		// But filter out other deprecated models from being newly selectable
-		const availableModels = filteredModels
-			? Object.entries(filteredModels)
-					.filter(([modelId, modelInfo]) => {
-						// Always include the currently selected model
-						if (modelId === selectedModelId) return true
-						// Filter out deprecated models that aren't currently selected
-						return !modelInfo.deprecated
-					})
-					.map(([modelId]) => ({
-						value: modelId,
-						label: modelId,
-					}))
-			: []
-
-		return availableModels
-	}, [selectedProvider, organizationAllowList, selectedModelId])
+		// 对于 OpenAI Compatible，使用受限的模型列表
+		if (selectedProvider === "openai") {
+			return [
+				{ value: "deepseek-chat", label: "deepseek-chat" },
+				{ value: "glm-4", label: "glm-4" },
+				{ value: "kimi", label: "kimi" },
+			]
+		}
+		return []
+	}, [selectedProvider])
 
 	const onProviderChange = useCallback(
 		(value: ProviderName) => {
@@ -377,51 +322,7 @@ const ApiOptions = ({
 					}
 				>
 			> = {
-				deepinfra: { field: "deepInfraModelId", default: deepInfraDefaultModelId },
-				openrouter: { field: "openRouterModelId", default: openRouterDefaultModelId },
-				glama: { field: "glamaModelId", default: glamaDefaultModelId },
-				unbound: { field: "unboundModelId", default: unboundDefaultModelId },
-				requesty: { field: "requestyModelId", default: requestyDefaultModelId },
-				litellm: { field: "litellmModelId", default: litellmDefaultModelId },
-				anthropic: { field: "apiModelId", default: anthropicDefaultModelId },
-				cerebras: { field: "apiModelId", default: cerebrasDefaultModelId },
-				"claude-code": { field: "apiModelId", default: claudeCodeDefaultModelId },
-				"qwen-code": { field: "apiModelId", default: qwenCodeDefaultModelId },
-				"openai-native": { field: "apiModelId", default: openAiNativeDefaultModelId },
-				gemini: { field: "apiModelId", default: geminiDefaultModelId },
-				deepseek: { field: "apiModelId", default: deepSeekDefaultModelId },
-				doubao: { field: "apiModelId", default: doubaoDefaultModelId },
-				moonshot: { field: "apiModelId", default: moonshotDefaultModelId },
-				minimax: { field: "apiModelId", default: minimaxDefaultModelId },
-				mistral: { field: "apiModelId", default: mistralDefaultModelId },
-				xai: { field: "apiModelId", default: xaiDefaultModelId },
-				groq: { field: "apiModelId", default: groqDefaultModelId },
-				chutes: { field: "apiModelId", default: chutesDefaultModelId },
-				bedrock: { field: "apiModelId", default: bedrockDefaultModelId },
-				vertex: { field: "apiModelId", default: vertexDefaultModelId },
-				sambanova: { field: "apiModelId", default: sambaNovaDefaultModelId },
-				zai: {
-					field: "apiModelId",
-					default:
-						apiConfiguration.zaiApiLine === "china_coding"
-							? mainlandZAiDefaultModelId
-							: internationalZAiDefaultModelId,
-				},
-				fireworks: { field: "apiModelId", default: fireworksDefaultModelId },
-				featherless: { field: "apiModelId", default: featherlessDefaultModelId },
-				"io-intelligence": { field: "ioIntelligenceModelId", default: ioIntelligenceDefaultModelId },
-				roo: { field: "apiModelId", default: rooDefaultModelId },
-				"vercel-ai-gateway": { field: "vercelAiGatewayModelId", default: vercelAiGatewayDefaultModelId },
-				openai: { field: "openAiModelId" },
-				ollama: { field: "ollamaModelId" },
-				lmstudio: { field: "lmStudioModelId" },
-				// kilocode_change start
-				kilocode: { field: "kilocodeModel", default: kilocodeDefaultModel },
-				"gemini-cli": { field: "apiModelId", default: geminiCliDefaultModelId },
-				synthetic: { field: "apiModelId", default: syntheticDefaultModelId },
-				ovhcloud: { field: "ovhCloudAiEndpointsModelId", default: ovhCloudAiEndpointsDefaultModelId },
-				inception: { field: "inceptionLabsModelId", default: inceptionDefaultModelId },
-				// kilocode_change end
+				openai: { field: "openAiModelId", default: "deepseek-chat" },
 			}
 
 			const config = PROVIDER_MODEL_CONFIG[value]
@@ -480,8 +381,7 @@ const ApiOptions = ({
 		}
 	}, [selectedProvider])
 
-	// Convert providers to SearchableSelect options
-	// kilocode_change start: no organizationAllowList
+	// Convert providers to SearchableSelect options - 只显示 OpenAI Compatible
 	const providerOptions = useMemo(
 		() =>
 			PROVIDERS.map(({ value, label }) => {
@@ -489,7 +389,6 @@ const ApiOptions = ({
 			}),
 		[],
 	)
-	// kilocode_change end
 
 	return (
 		<div className="flex flex-col gap-3">
@@ -518,153 +417,7 @@ const ApiOptions = ({
 
 			{errorMessage && <ApiErrorMessage errorMessage={errorMessage} />}
 
-			{/* kilocode_change start */}
-			{selectedProvider === "kilocode" && (
-				<KiloCode
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					hideKiloCodeButton={hideKiloCodeButton}
-					currentApiConfigName={currentApiConfigName}
-					routerModels={routerModels}
-					organizationAllowList={organizationAllowList}
-					uriScheme={uriScheme}
-					uiKind={uiKind}
-					kiloCodeWrapperProperties={kiloCodeWrapperProperties}
-					kilocodeDefaultModel={kilocodeDefaultModel}
-				/>
-			)}
-			{/* kilocode_change end */}
-
-			{selectedProvider === "openrouter" && (
-				<OpenRouter
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					selectedModelId={selectedModelId}
-					uriScheme={uriScheme}
-					fromWelcomeView={fromWelcomeView}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{selectedProvider === "requesty" && (
-				<Requesty
-					uriScheme={uriScheme}
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					refetchRouterModels={refetchRouterModels}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{selectedProvider === "glama" && (
-				<Glama
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					uriScheme={uriScheme}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{selectedProvider === "unbound" && (
-				<Unbound
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{selectedProvider === "deepinfra" && (
-				<DeepInfra
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					refetchRouterModels={refetchRouterModels}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{/* kilocode_change start */}
-			{selectedProvider === "inception" && (
-				<Inception
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					refetchRouterModels={refetchRouterModels}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-			{/* kilocode_change end */}
-
-			{selectedProvider === "anthropic" && (
-				<Anthropic apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "claude-code" && (
-				<ClaudeCode apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "openai-native" && (
-				<OpenAI
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					selectedModelInfo={selectedModelInfo}
-				/>
-			)}
-
-			{/* kilocode_change start */}
-			{selectedProvider === "ovhcloud" && (
-				<OvhCloudAiEndpoints
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-			{/* kilocode_change end */}
-
-			{selectedProvider === "mistral" && (
-				<Mistral apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "bedrock" && (
-				<Bedrock
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					selectedModelInfo={selectedModelInfo}
-				/>
-			)}
-
-			{selectedProvider === "vertex" && (
-				<Vertex
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					fromWelcomeView={fromWelcomeView}
-				/>
-			)}
-
-			{selectedProvider === "gemini" && (
-				// kilocode_change: added props
-				<Gemini
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					fromWelcomeView={fromWelcomeView}
-					routerModels={routerModels}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
+			{/* 只显示 OpenAI Compatible 提供商 */}
 			{selectedProvider === "openai" && (
 				<OpenAICompatible
 					apiConfiguration={apiConfiguration}
@@ -672,153 +425,6 @@ const ApiOptions = ({
 					organizationAllowList={organizationAllowList}
 					modelValidationError={modelValidationError}
 				/>
-			)}
-
-			{selectedProvider === "lmstudio" && (
-				<LMStudio apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "deepseek" && (
-				<DeepSeek apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "doubao" && (
-				<Doubao apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "qwen-code" && (
-				<QwenCode apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "moonshot" && (
-				<Moonshot apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "minimax" && (
-				<MiniMax apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "vscode-lm" && (
-				<VSCodeLM apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "ollama" && (
-				<Ollama apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "xai" && (
-				<XAI apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "groq" && (
-				<Groq apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "huggingface" && (
-				<HuggingFace apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "cerebras" && (
-				<Cerebras apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "chutes" && (
-				<Chutes
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{/* kilocode_change start */}
-			{selectedProvider === "gemini-cli" && (
-				<GeminiCli apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "virtual-quota-fallback" && (
-				<VirtualQuotaFallbackProvider
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-				/>
-			)}
-			{/* kilocode_change end */}
-
-			{selectedProvider === "litellm" && (
-				<LiteLLM
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{selectedProvider === "sambanova" && (
-				<SambaNova apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "zai" && (
-				<ZAi apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-
-			{selectedProvider === "io-intelligence" && (
-				<IOIntelligence
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{selectedProvider === "vercel-ai-gateway" && (
-				<VercelAiGateway
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{selectedProvider === "human-relay" && (
-				<>
-					<div className="text-sm text-vscode-descriptionForeground">
-						{t("settings:providers.humanRelay.description")}
-					</div>
-					<div className="text-sm text-vscode-descriptionForeground">
-						{t("settings:providers.humanRelay.instructions")}
-					</div>
-				</>
-			)}
-
-			{selectedProvider === "fireworks" && (
-				<Fireworks apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
-			)}
-			{
-				// kilocode_change start
-				selectedProvider === "synthetic" && (
-					<Synthetic
-						apiConfiguration={apiConfiguration}
-						setApiConfigurationField={setApiConfigurationField}
-					/>
-				)
-				// kilocode_change end
-			}
-
-			{selectedProvider === "roo" && (
-				<Roo
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					routerModels={routerModels}
-					cloudIsAuthenticated={cloudIsAuthenticated}
-					organizationAllowList={organizationAllowList}
-					modelValidationError={modelValidationError}
-				/>
-			)}
-
-			{selectedProvider === "featherless" && (
-				<Featherless apiConfiguration={apiConfiguration} setApiConfigurationField={setApiConfigurationField} />
 			)}
 
 			{selectedProviderModels.length > 0 && (
@@ -882,21 +488,12 @@ const ApiOptions = ({
 				</>
 			)}
 
-			{selectedProvider === "roo" ? (
-				<SimpleThinkingBudget
-					key={`${selectedProvider}-${selectedModelId}`}
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					modelInfo={selectedModelInfo}
-				/>
-			) : (
-				<ThinkingBudget
-					key={`${selectedProvider}-${selectedModelId}`}
-					apiConfiguration={apiConfiguration}
-					setApiConfigurationField={setApiConfigurationField}
-					modelInfo={selectedModelInfo}
-				/>
-			)}
+			<ThinkingBudget
+				key={`${selectedProvider}-${selectedModelId}`}
+				apiConfiguration={apiConfiguration}
+				setApiConfigurationField={setApiConfigurationField}
+				modelInfo={selectedModelInfo}
+			/>
 
 			{/* Gate Verbosity UI by capability flag */}
 			{selectedModelInfo?.supportsVerbosity && (
@@ -907,24 +504,7 @@ const ApiOptions = ({
 				/>
 			)}
 
-			{
-				// kilocode_change start
-				(selectedProvider === "kilocode" || selectedProvider === "openrouter") &&
-					(apiConfiguration.kilocodeOrganizationId ? (
-						<KiloProviderRoutingManagedByOrganization
-							organizationId={apiConfiguration.kilocodeOrganizationId}
-						/>
-					) : (
-						<KiloProviderRouting
-							apiConfiguration={apiConfiguration}
-							setApiConfigurationField={setApiConfigurationField}
-							kilocodeDefaultModel={kilocodeDefaultModel}
-						/>
-					))
-				// kilocode_change end
-			}
-
-			{!fromWelcomeView && selectedProvider !== "virtual-quota-fallback" /*kilocode_change*/ && (
+			{!fromWelcomeView && (
 				<Collapsible open={isAdvancedSettingsOpen} onOpenChange={setIsAdvancedSettingsOpen}>
 					<CollapsibleTrigger className="flex items-center gap-1 w-full cursor-pointer hover:opacity-80 mb-2">
 						<span className={`codicon codicon-chevron-${isAdvancedSettingsOpen ? "down" : "right"}`}></span>
@@ -935,16 +515,6 @@ const ApiOptions = ({
 							todoListEnabled={apiConfiguration.todoListEnabled}
 							onChange={(field, value) => setApiConfigurationField(field, value)}
 						/>
-						{
-							// kilocode_change start
-							nativeFunctionCallingProviders.includes(selectedProvider) && (
-								<ToolUseControl
-									toolStyle={apiConfiguration.toolStyle}
-									onChange={(field, value) => setApiConfigurationField(field, value)}
-								/>
-							)
-							// kilocode_change end
-						}
 						<DiffSettingsControl
 							diffEnabled={apiConfiguration.diffEnabled}
 							fuzzyMatchThreshold={apiConfiguration.fuzzyMatchThreshold}
@@ -957,14 +527,6 @@ const ApiOptions = ({
 								maxValue={2}
 							/>
 						)}
-						{
-							// kilocode_change start
-							<RateLimitAfterControl
-								rateLimitAfterEnabled={apiConfiguration.rateLimitAfter}
-								onChange={(field, value) => setApiConfigurationField(field, value)}
-							/>
-							// kilocode_change end
-						}
 						<RateLimitSecondsControl
 							value={apiConfiguration.rateLimitSeconds || 0}
 							onChange={(value) => setApiConfigurationField("rateLimitSeconds", value)}
