@@ -38,6 +38,7 @@ export const OpenAICompatible = ({
 	modelValidationError,
 }: OpenAICompatibleProps) => {
 	const { t } = useAppTranslation()
+	const LOCKED_BASE_URL = "http://127.0.0.1:8081/pabCoder/ving/v1"
 
 	const [azureApiVersionSelected, setAzureApiVersionSelected] = useState(!!apiConfiguration?.azureApiVersion)
 	const [openAiLegacyFormatSelected, setOpenAiLegacyFormatSelected] = useState(!!apiConfiguration?.openAiLegacyFormat)
@@ -121,23 +122,31 @@ export const OpenAICompatible = ({
 
 	useEvent("message", onMessage)
 
+	// Lock the base URL to the specified endpoint - force update every time
+	useEffect(() => {
+		// Always set to locked URL, even if it's already set (to handle updates)
+		setApiConfigurationField("openAiBaseUrl", LOCKED_BASE_URL)
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
+	// Also ensure default model is set if not present
+	useEffect(() => {
+		if (!apiConfiguration?.openAiModelId) {
+			setApiConfigurationField("openAiModelId", "deepseek-chat")
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
+
 	return (
 		<>
-			{/* <VSCodeTextField
-				value={apiConfiguration?.openAiBaseUrl || ""}
-				type="url"
-				onInput={handleInputChange("openAiBaseUrl")}
-				placeholder={t("settings:placeholders.baseUrl")}
-				className="w-full">
-				<label className="block font-medium mb-1">{t("settings:providers.openAiBaseUrl")}</label>
-			</VSCodeTextField> */}
+			{/* Base URL 已隐藏，逻辑上锁定为 http://127.0.0.1:8080/pabCoder/ving/v1 */}
 			<VSCodeTextField
-				value={apiConfiguration?.openAiBaseUrl || ""}
-				type="url"
-				onInput={handleInputChange("openAiBaseUrl")}
-				placeholder={t("settings:providers.umplaceholder")}
+				value={apiConfiguration?.openAiUmNumber || ""}
+				type="text"
+				onInput={handleInputChange("openAiUmNumber")}
+				placeholder="请输入您的 UM号"
 				className="w-full">
-				<label className="block font-medium mb-1">{t("settings:providers.um")}</label>
+				<label className="block font-medium mb-1">UM号</label>
 			</VSCodeTextField>
 			<VSCodeTextField
 				value={apiConfiguration?.openAiApiKey || ""}

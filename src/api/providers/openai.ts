@@ -52,6 +52,17 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 
 		const timeout = getApiRequestTimeout()
 
+		// 添加初始化日志
+		console.log("=== OpenAI Handler Initialization ===")
+		console.log("Base URL:", baseURL)
+		console.log("Expected Chat Completions URL:", `${baseURL}/chat/completions`)
+		console.log("API Key:", apiKey ? `${apiKey.substring(0, 10)}...` : "not-provided")
+		console.log("Is Azure AI Inference:", isAzureAiInference)
+		console.log("Is Azure OpenAI:", isAzureOpenAi)
+		console.log("Headers:", JSON.stringify(headers, null, 2))
+		console.log("Timeout:", timeout)
+		console.log("======================================")
+
 		if (isAzureAiInference) {
 			// Azure AI Inference Service (e.g., for DeepSeek) uses a different path structure
 			this.client = new OpenAI({
@@ -94,6 +105,20 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 		const isAzureAiInference = this._isAzureAiInference(modelUrl)
 		const deepseekReasoner = modelId.includes("deepseek-reasoner") || enabledR1Format
 		const ark = modelUrl.includes(".volces.com")
+
+		// 添加详细日志
+		console.log("=== OpenAI API Request Details ===")
+		console.log("Base URL:", modelUrl)
+		console.log("Model ID:", modelId)
+		console.log(
+			"API Key:",
+			this.options.openAiApiKey ? `${this.options.openAiApiKey.substring(0, 10)}...` : "not provided",
+		)
+		console.log("UM Number:", this.options.openAiUmNumber || "not provided")
+		console.log("Custom Headers:", JSON.stringify(this.options.openAiHeaders || {}, null, 2))
+		console.log("Temperature:", this.options.modelTemperature)
+		console.log("Streaming Enabled:", this.options.openAiStreamingEnabled ?? true)
+		console.log("====================================")
 
 		if (modelId.includes("o1") || modelId.includes("o3") || modelId.includes("o4")) {
 			yield* this.handleO3FamilyMessage(modelId, systemPrompt, messages)
@@ -176,11 +201,35 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 
 			let stream
 			try {
+				console.log("=== Sending OpenAI API Request ===")
+				console.log(
+					"Request Options:",
+					JSON.stringify(
+						{
+							model: requestOptions.model,
+							temperature: requestOptions.temperature,
+							stream: requestOptions.stream,
+							messagesCount: requestOptions.messages.length,
+							maxTokens: requestOptions.max_completion_tokens,
+						},
+						null,
+						2,
+					),
+				)
+				console.log("Azure AI Inference:", isAzureAiInference)
+				console.log("==================================")
+
 				stream = await this.client.chat.completions.create(
 					requestOptions,
 					isAzureAiInference ? { path: OPENAI_AZURE_AI_INFERENCE_PATH } : {},
 				)
+
+				console.log("=== OpenAI API Request Successful ===")
 			} catch (error) {
+				console.error("=== OpenAI API Request Failed ===")
+				console.error("Error:", error)
+				console.error("Error Message:", error instanceof Error ? error.message : String(error))
+				console.error("==================================")
 				throw handleOpenAIError(error, this.providerName)
 			}
 
