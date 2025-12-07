@@ -26,6 +26,7 @@ import { BaseProvider } from "./base-provider"
 import type { SingleCompletionHandler, ApiHandlerCreateMessageMetadata } from "../index"
 import { getApiRequestTimeout } from "./utils/timeout-config"
 import { handleOpenAIError } from "./utils/openai-error-handler"
+import { X_UM_NUMBER } from "../../shared/kilocode/headers"
 
 // TODO: Rename this to OpenAICompatibleHandler. Also, I think the
 // `OpenAINativeHandler` can subclass from this, since it's obviously
@@ -48,6 +49,7 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 		const headers = {
 			...DEFAULT_HEADERS,
 			...(this.options.openAiHeaders || {}),
+			...(this.options.openAiUmNumber ? { [X_UM_NUMBER]: this.options.openAiUmNumber } : {}),
 		}
 
 		const timeout = getApiRequestTimeout()
@@ -532,7 +534,12 @@ export class OpenAiHandler extends BaseProvider implements SingleCompletionHandl
 	}
 }
 
-export async function getOpenAiModels(baseUrl?: string, apiKey?: string, openAiHeaders?: Record<string, string>) {
+export async function getOpenAiModels(
+	baseUrl?: string,
+	apiKey?: string,
+	openAiHeaders?: Record<string, string>,
+	openAiUmNumber?: string,
+) {
 	try {
 		if (!baseUrl) {
 			return []
@@ -549,6 +556,7 @@ export async function getOpenAiModels(baseUrl?: string, apiKey?: string, openAiH
 		const headers: Record<string, string> = {
 			...DEFAULT_HEADERS,
 			...(openAiHeaders || {}),
+			...(openAiUmNumber ? { [X_UM_NUMBER]: openAiUmNumber } : {}),
 		}
 
 		if (apiKey) {

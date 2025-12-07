@@ -1068,6 +1068,7 @@ export const webviewMessageHandler = async (
 					message?.values?.baseUrl,
 					message?.values?.apiKey,
 					message?.values?.openAiHeaders,
+					message?.values?.openAiUmNumber,
 				)
 
 				provider.postMessageToWebview({ type: "openAiModels", openAiModels })
