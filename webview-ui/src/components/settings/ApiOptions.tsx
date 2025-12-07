@@ -8,43 +8,43 @@ import {
 	type ProviderName,
 	type ProviderSettings,
 	DEFAULT_CONSECUTIVE_MISTAKE_LIMIT,
-	_openRouterDefaultModelId,
-	_requestyDefaultModelId,
-	_glamaDefaultModelId,
-	_unboundDefaultModelId,
-	_litellmDefaultModelId,
-	_openAiNativeDefaultModelId,
-	_anthropicDefaultModelId,
-	_doubaoDefaultModelId,
-	_claudeCodeDefaultModelId,
-	_qwenCodeDefaultModelId,
-	_geminiDefaultModelId,
-	_geminiCliDefaultModelId,
-	_deepSeekDefaultModelId,
-	_moonshotDefaultModelId,
+	openRouterDefaultModelId,
+	requestyDefaultModelId,
+	glamaDefaultModelId,
+	unboundDefaultModelId,
+	litellmDefaultModelId,
+	openAiNativeDefaultModelId,
+	anthropicDefaultModelId,
+	doubaoDefaultModelId,
+	claudeCodeDefaultModelId,
+	qwenCodeDefaultModelId,
+	geminiDefaultModelId,
+	geminiCliDefaultModelId,
+	deepSeekDefaultModelId,
+	moonshotDefaultModelId,
 	// kilocode_change start
-	_syntheticDefaultModelId,
-	_ovhCloudAiEndpointsDefaultModelId,
-	_inceptionDefaultModelId,
-	_nativeFunctionCallingProviders,
+	syntheticDefaultModelId,
+	ovhCloudAiEndpointsDefaultModelId,
+	inceptionDefaultModelId,
+	nativeFunctionCallingProviders,
 	// kilocode_change end
-	_mistralDefaultModelId,
-	_xaiDefaultModelId,
-	_groqDefaultModelId,
-	_cerebrasDefaultModelId,
-	_chutesDefaultModelId,
-	_bedrockDefaultModelId,
-	_vertexDefaultModelId,
-	_sambaNovaDefaultModelId,
-	_internationalZAiDefaultModelId,
-	_mainlandZAiDefaultModelId,
-	_fireworksDefaultModelId,
-	_featherlessDefaultModelId,
-	_ioIntelligenceDefaultModelId,
-	_rooDefaultModelId,
-	_vercelAiGatewayDefaultModelId,
-	_deepInfraDefaultModelId,
-	_minimaxDefaultModelId,
+	mistralDefaultModelId,
+	xaiDefaultModelId,
+	groqDefaultModelId,
+	cerebrasDefaultModelId,
+	chutesDefaultModelId,
+	bedrockDefaultModelId,
+	vertexDefaultModelId,
+	sambaNovaDefaultModelId,
+	internationalZAiDefaultModelId,
+	mainlandZAiDefaultModelId,
+	fireworksDefaultModelId,
+	featherlessDefaultModelId,
+	ioIntelligenceDefaultModelId,
+	rooDefaultModelId,
+	vercelAiGatewayDefaultModelId,
+	deepInfraDefaultModelId,
+	minimaxDefaultModelId,
 } from "@roo-code/types"
 
 import { vscode } from "@src/utils/vscode"
@@ -59,7 +59,7 @@ import { useExtensionState } from "@src/context/ExtensionStateContext"
 //	OPENROUTER_DEFAULT_PROVIDER_NAME,
 //} from "@src/components/ui/hooks/useOpenRouterModelProviders"
 // kilocode_change start
-import { _filterModels } from "./utils/organizationFilters"
+import { filterModels } from "./utils/organizationFilters"
 import {
 	Select,
 	SelectTrigger,
@@ -74,25 +74,25 @@ import {
 
 import { OpenAICompatible } from "./providers"
 
-import { _MODELS_BY_PROVIDER, PROVIDERS } from "./constants"
+import { MODELS_BY_PROVIDER, PROVIDERS } from "./constants"
 import { inputEventTransform, noTransform } from "./transforms"
 // import { ModelPicker } from "./ModelPicker" // kilocode_change
 import { ModelInfoView } from "./ModelInfoView"
 import { ApiErrorMessage } from "./ApiErrorMessage"
 import { ThinkingBudget } from "./ThinkingBudget"
-import { _SimpleThinkingBudget } from "./SimpleThinkingBudget"
+import { SimpleThinkingBudget } from "./SimpleThinkingBudget"
 import { Verbosity } from "./Verbosity"
 import { DiffSettingsControl } from "./DiffSettingsControl"
 import { TodoListSettingsControl } from "./TodoListSettingsControl"
 import { TemperatureControl } from "./TemperatureControl"
 import { RateLimitSecondsControl } from "./RateLimitSecondsControl"
 import { ConsecutiveMistakeLimitControl } from "./ConsecutiveMistakeLimitControl"
-import { _ToolUseControl } from "./kilocode/ToolUseControl" // kilocode_change
+import { ToolUseControl } from "./kilocode/ToolUseControl" // kilocode_change
 import { BedrockCustomArn } from "./providers/BedrockCustomArn"
-import { _KiloCode } from "../kilocode/settings/providers/KiloCode" // kilocode_change
+import { KiloCode } from "../kilocode/settings/providers/KiloCode" // kilocode_change
 import { buildDocLink } from "@src/utils/docLinks"
-import { _KiloProviderRouting, _KiloProviderRoutingManagedByOrganization } from "./providers/KiloProviderRouting"
-import { _RateLimitAfterControl } from "./RateLimitAfterSettings" // kilocode_change
+import { KiloProviderRouting, KiloProviderRoutingManagedByOrganization } from "./providers/KiloProviderRouting"
+import { RateLimitAfterControl } from "./RateLimitAfterSettings" // kilocode_change
 
 export interface ApiOptionsProps {
 	uriScheme: string | undefined
@@ -110,22 +110,22 @@ export interface ApiOptionsProps {
 }
 
 const ApiOptions = ({
-	_uriScheme,
+	uriScheme: _uriScheme,
 	apiConfiguration,
 	setApiConfigurationField,
 	fromWelcomeView,
 	errorMessage,
 	setErrorMessage,
-	_hideKiloCodeButton = false,
-	_currentApiConfigName, // kilocode_change
+	hideKiloCodeButton: _hideKiloCodeButton = false,
+	currentApiConfigName: _currentApiConfigName, // kilocode_change
 }: ApiOptionsProps) => {
 	const { t } = useAppTranslation()
 	const {
 		organizationAllowList,
-		_uiKind, // kilocode_change
-		_kiloCodeWrapperProperties, // kilocode_change
+		uiKind: _uiKind, // kilocode_change
+		kiloCodeWrapperProperties: _kiloCodeWrapperProperties, // kilocode_change
 		kilocodeDefaultModel,
-		_cloudIsAuthenticated,
+		cloudIsAuthenticated: _cloudIsAuthenticated,
 	} = useExtensionState()
 
 	const [customHeaders, setCustomHeaders] = useState<[string, string][]>(() => {

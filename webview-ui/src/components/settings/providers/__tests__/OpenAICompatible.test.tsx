@@ -1,5 +1,5 @@
 import React from "react"
-import { render, screen, _fireEvent, waitFor } from "@testing-library/react"
+import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { OpenAICompatible } from "../OpenAICompatible"
 import { ProviderSettings } from "@roo-code/types"
 
@@ -49,7 +49,7 @@ describe("OpenAICompatible UM Number Functionality", () => {
 	})
 
 	test("应该根据选择的模型自动设置基础URL", async () => {
-		const { rerender: _rerender } = render(<OpenAICompatible {...defaultProps} />)
+		const { rerender } = render(<OpenAICompatible {...defaultProps} />)
 
 		// 模拟选择 deepseek-chat 模型
 		const newConfig = {
@@ -68,7 +68,7 @@ describe("OpenAICompatible UM Number Functionality", () => {
 	})
 
 	test("应该根据选择的模型自动设置正确的基础URL - glm-4", async () => {
-		const { rerender: _rerender } = render(<OpenAICompatible {...defaultProps} />)
+		const { rerender } = render(<OpenAICompatible {...defaultProps} />)
 
 		// 模拟选择 glm-4 模型
 		const newConfig = {
@@ -87,7 +87,7 @@ describe("OpenAICompatible UM Number Functionality", () => {
 	})
 
 	test("应该根据选择的模型自动设置正确的基础URL - kimi", async () => {
-		const { rerender: _rerender } = render(<OpenAICompatible {...defaultProps} />)
+		const { rerender } = render(<OpenAICompatible {...defaultProps} />)
 
 		// 模拟选择 kimi 模型
 		const newConfig = {
@@ -106,7 +106,7 @@ describe("OpenAICompatible UM Number Functionality", () => {
 	})
 
 	test("应该在输入UM号时更新请求头", async () => {
-		const { rerender: _rerender } = render(<OpenAICompatible {...defaultProps} />)
+		const { rerender } = render(<OpenAICompatible {...defaultProps} />)
 
 		// 模拟输入UM号
 		const newConfig = {
@@ -132,7 +132,7 @@ describe("OpenAICompatible UM Number Functionality", () => {
 			},
 		}
 
-		const { rerender: _rerender } = render(<OpenAICompatible {...defaultProps} apiConfiguration={initialConfig} />)
+		const { rerender } = render(<OpenAICompatible {...defaultProps} apiConfiguration={initialConfig} />)
 
 		// 模拟输入UM号
 		const newConfig = {
