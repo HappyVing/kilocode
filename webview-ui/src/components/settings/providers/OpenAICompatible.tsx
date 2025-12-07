@@ -43,7 +43,7 @@ export const OpenAICompatible = ({
 	const [azureApiVersionSelected, setAzureApiVersionSelected] = useState(!!apiConfiguration?.azureApiVersion)
 	const [openAiLegacyFormatSelected, setOpenAiLegacyFormatSelected] = useState(!!apiConfiguration?.openAiLegacyFormat)
 
-	const [openAiModels, setOpenAiModels] = useState<Record<string, ModelInfo>>(RESTRICTED_MODELS)
+	const [openAiModels, _setOpenAiModels] = useState<Record<string, ModelInfo>>(RESTRICTED_MODELS)
 
 	const [customHeaders, setCustomHeaders] = useState<[string, string][]>(() => {
 		const headers = apiConfiguration?.openAiHeaders || {}
@@ -107,8 +107,8 @@ export const OpenAICompatible = ({
 		[setApiConfigurationField],
 	)
 
-	const onMessage = useCallback((event: MessageEvent) => {
-		const message: ExtensionMessage = event.data
+	const onMessage = useCallback((_event: MessageEvent) => {
+		const _message: ExtensionMessage = _event.data
 
 		// 不再动态获取模型，使用受限的模型列表
 		// switch (message.type) {
